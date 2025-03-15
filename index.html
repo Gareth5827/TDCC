@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reroll Character</title>
+  <title>Character Reroll</title>
   <style>
     body {
       font-family: sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background-color: #f0f0f0;
+      padding: 30px;
+      background-color: #f8f8f8;
     }
     button {
       font-size: 24px;
@@ -20,23 +19,166 @@
       margin: 20px;
       cursor: pointer;
     }
-    #output {
-      font-size: 30px;
-      font-weight: bold;
+    .stat-block {
+      margin: 10px;
+      font-size: 20px;
     }
   </style>
 </head>
 <body>
 
   <button onclick="MakeCharacter()">Reroll</button>
-  <div id="output"></div>
+
+  <div class="stat-block" id="end">END: 0    Health: 23</div>
+  <div class="stat-block" id="ins">INS: 0    Mana: 20</div>
+  <div class="stat-block" id="wit">WIT: 0    Mana Regen: 3</div>
+  <div class="stat-block" id="agi">AGI: 0    Swiftness: 10</div>
+  <div class="stat-block" id="all">ALL: 0    Spirit: 10</div>
+  <div class="stat-block" id="pwr">PWR: 0    Advantage: 0</div>
 
   <script>
-    function MakeCharacter() {
-      const randomNumber = Math.floor(Math.random() * 10) + 1;
-      document.getElementById("output").innerText = "Your character number is: " + randomNumber;
+  const baseStats = {
+    END: 0, INS: 0, WIT: 0, AGI: 0, ALL: 0, PWR: 0
+  };
+
+  const baseEffects = {
+    Health: 23,
+    Mana: 20,
+    ManaRegen: 3,
+    Swiftness: 10,
+    Spirit: 10,
+    Advantage: 0
+  };
+
+ rollEffects = {
+    10: { Mana: 4, WIT: 3, INS: 1 },
+    11: { Mana: 5, ALL: 2, INS: 1 },
+    12: { AGI: 4, PWR: 2 },
+    13: { END: 3, WIT: 2, Swiftness: 1 },
+    14: { Health: 3, END: 3, PWR: 2 },
+    15: { WIT: 2, Swiftness: 1, Spirit: 1 },
+    16: { Health: 3, END: 2, INS: 2, WIT: 1 },
+    17: { Health: 6, END: 4, Swiftness: -2, Spirit: -2 },
+    18: { AGI: 2, WIT: 2, ALL: 1 },
+    19: { Mana: 4, END: 3, PWR: 1, ManaRegen: 1 },
+    20: { Mana: 5, INS: 4, WIT: 1 },
+    21: { INS: 2, ALL: 2, WIT: 1 },
+    22: { Health: 3, Mana: 3, INS: 2, ALL: 2 },
+    23: { PWR: 3, AGI: 2, END: 2 },
+    24: { Health: 5, INS: 2, Spirit: 1 },
+    25: { Mana: 5, PWR: 2, INS: 2, ManaRegen: 1 },
+    26: { INS: 3, WIT: 3 },
+    27: { Health: 5, PWR: 3, END: 2 },
+    28: { Speed: 5, END: 4, PWR: 2 },
+    29: { Mana: 4, AGI: 3, WIT: 2 },
+    30: { Mana: 5, WIT: 3, INS: 3 },
+    31: { Mana: 8, INS: 2, WIT: 2 },
+    32: { END: 3, PWR: 2 },
+    33: { INS: 4, WIT: 2, ALL: 2 },
+    34: { Speed: 5, ALL: 3, PWR: 2 },
+    35: { Health: 5, PWR: 2, END: 2, INS: 2 },
+    36: { END: 3, WIT: 3, Swiftness: 2, Spirit: 1 },
+    37: { END: 2, Swiftness: 2, Spirit: 2 },
+    38: { AGI: 3, ALL: 2, PWR: 1 },
+    39: { Health: 5, PWR: 5 },
+    40: { INS: 3, WIT: 2, END: 1 },
+    41: { Mana: 15, WIT: 3 },
+    42: { Health: 8, Speed: 5, PWR: 3 },
+    43: { Speed: 5, Swiftness: 1, AGI: 3, PWR: 2 },
+    44: { Health: 8, END: 3, PWR: 2 },
+    45: { Spirit: 2, INS: 3 },
+    46: { Health: 6, END: 3, INS: 3 },
+    47: { Swiftness: -8, Spirit: -8, PWR: 5, AGI: 5, ALL: 5, Health: 10 },
+    48: { PWR: 3, AGI: 3, Spirit: 1 },
+    49: { Mana: 6, PWR: 3, INS: 3 },
+    50: { Mana: 7, END: 4, WIT: 1 },
+    51: { Health: 4, Mana: 4, ManaRegen: 1, Spirit: 1 },
+    52: { INS: 3, WIT: 3, Spirit: 1 },
+    53: { END: 4, PWR: 3, Swiftness: 2 },
+    54: { INS: 3, WIT: 3, Spirit: 2, Swiftness: 1 },
+    55: { Mana: 5, END: 2, INS: 2, WIT: 1 },
+    56: { Mana: 7, Health: 5, Swiftness: 1 },
+    57: { Mana: 8, INS: 2, WIT: 1 },
+    58: { Speed: 5, PWR: 3, AGI: 1, Swiftness: 1 },
+    59: { AGI: 4, ALL: 3 },
+    60: { INS: 3, PWR: 2 },
+    61: { PWR: 3, Swiftness: 1 },
+    62: { AGI: 3, ALL: 2 },
+    63: { Speed: 5, PWR: 2, AGI: 2, ALL: 2 },
+    64: { Mana: 10, INS: 3, WIT: 1 },
+    65: { Speed: 5, INS: 2, WIT: 2 },
+    66: { INS: 4, ALL: 4, AGI: 2 },
+    67: { Speed: 5, PWR: 2, AGI: 2, ALL: 2 },
+    68: { Mana: 4, INS: 2, AGI: 2, Spirit: 1 },
+    69: { Health: 10, PWR: 5, AGI: 5, ALL: 5, Swiftness: -7, Spirit: -7 }
+}
+
+  const opposites = {
+    PWR: "WIT",
+    WIT: "PWR",
+    AGI: "INS",
+    INS: "AGI",
+    END: "ALL",
+    ALL: "END"
+  };
+
+  function MakeCharacter() {
+    // Reset stats and attributes
+    let stats = { END: 0, INS: 0, WIT: 0, AGI: 0, ALL: 0, PWR: 0 };
+    let effects = { ...baseEffects };
+
+    // Pick two unique numbers
+    let roll1 = getRandomInt(10, 69);
+    let roll2;
+    do {
+      roll2 = getRandomInt(10, 69);
+    } while (roll2 === roll1);
+
+    const rolls = [roll1, roll2];
+
+    // Apply bonuses
+    rolls.forEach(roll => {
+      const bonuses = rollEffects[roll];
+      if (bonuses) {
+        for (let key in bonuses) {
+          if (stats.hasOwnProperty(key)) {
+            stats[key] += bonuses[key];
+          } else if (effects.hasOwnProperty(key)) {
+            effects[key] += bonuses[key];
+          }
+        }
+      }
+    });
+
+    // Apply opposite stat subtractions
+    for (let stat in stats) {
+      const opposite = opposites[stat];
+      if (opposite && stats[stat] > 0) {
+        stats[opposite] -= stats[stat];
+      }
     }
-  </script>
+
+    // Apply final stat effects (only those derived from stats)
+    effects.Health = baseEffects.Health + (stats.END || 0);
+    effects.Mana = effects.Mana + (stats.INS || 0); // Already includes bonus mana above
+    effects.ManaRegen = baseEffects.ManaRegen + (stats.WIT || 0);
+    effects.Swiftness = baseEffects.Swiftness + (stats.AGI || 0);
+    effects.Spirit = baseEffects.Spirit + (stats.ALL || 0);
+    effects.Advantage = baseEffects.Advantage + (stats.PWR || 0);
+
+    // Update display
+    document.getElementById("end").innerText = `END: ${stats.END || 0}    Health: ${effects.Health}`;
+    document.getElementById("ins").innerText = `INS: ${stats.INS || 0}    Mana: ${effects.Mana}`;
+    document.getElementById("wit").innerText = `WIT: ${stats.WIT || 0}    Mana Regen: ${effects.ManaRegen}`;
+    document.getElementById("agi").innerText = `AGI: ${stats.AGI || 0}    Swiftness: ${effects.Swiftness}`;
+    document.getElementById("all").innerText = `ALL: ${stats.ALL || 0}    Spirit: ${effects.Spirit}`;
+    document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+</script>
 
 </body>
 </html>
