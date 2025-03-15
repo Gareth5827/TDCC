@@ -35,6 +35,10 @@
   <div class="stat-block" id="agi">AGI: 0    Swiftness: 10</div>
   <div class="stat-block" id="all">ALL: 0    Spirit: 10</div>
   <div class="stat-block" id="pwr">PWR: 0    Advantage: 0</div>
+  
+      <div id="proficiencies" style="margin-left: 30px; padding: 10px; border: 1px solid #ccc; width: 250px;">
+  <strong>Proficiencies:</strong><br>
+</div>
 
   <script>
   const baseStats = {
@@ -113,6 +117,68 @@
     69: { Health: 10, PWR: 5, AGI: 5, ALL: 5, Swiftness: -7, Spirit: -7 }
 }
 
+    const proficiencyEffects = {
+  10: { Arcana: 1, Foresight: 1, Taming: 1 },
+  11: { Performance: 2, Foresight: 1 },
+  12: { Stealth: 2, Athletics: 1 },
+  13: { Taming: 2, Arcana: 1 },
+  14: { Might: 2, Survival: 1 },
+  15: { Might: 1, Perception: 1, Foresight: 1 },
+  16: { Perception: 1 },
+  17: { Survival: 1, Resist: 1 },
+  18: { Theft: 1, Persuasion: 1 },
+  19: { Survival: 1, Resist: 1, Athletics: 1 },
+  20: { Arcana: 2, Perception: 1 },
+  21: { Arcana: 2, Taming: 1 },
+  22: { Performance: 2, Arcana: 1 },
+  23: { Might: 2, Resist: 1 },
+  24: { Resist: 1, Survival: 1, Performance: 1 },
+  25: { Survival: 2, Athletics: 1 },
+  26: { Might: 1, Theft: 1, Persuasion: 1 },
+  27: { Athletics: 2, Stealth: 1 },
+  28: { Stealth: 2, Theft: 1 },
+  29: { Taming: 2, Athletics: 1 },
+  30: { Foresight: 2, Survival: 1 },
+  31: { Performance: 2, Survival: 1 },
+  32: { Might: 2 },
+  33: { Stealth: 1, Resist: 1 },
+  35: { Resist: 2 },
+  36: { Survival: 1, Arcana: 1 },
+  37: { Might: 1, Performance: 1, Arcana: 1 },
+  38: { Taming: 2, Survival: 1 },
+  39: { Athletics: 1, Might: 1, Survival: 1 },
+  40: { Taming: 2 },
+  41: { Perception: 1, Arcana: 1, Foresight: 1 },
+  42: { Athletics: 1, Survival: 1, Foresight: 1 },
+  43: { Theft: 2, Stealth: 1 },
+  44: { Might: 3 },
+  45: { Arcana: 2, Might: 1 },
+  46: { Survival: 2, Arcana: 1 },
+  47: { Perception: 1 },
+  48: { Survival: 1, Perception: 1 },
+  49: { Survival: 1 },
+  50: { Stealth: 1, Survival: 1 },
+  51: { Performance: 3 },
+  52: { Stealth: 1, Performance: 1, Arcana: 1 },
+  53: { Athletics: 2, Survival: 1 },
+  54: { Taming: 2, Survival: 1 },
+  55: { Perception: 2, Arcana: 1 },
+  56: { Perception: 2 },
+  57: { Performance: 2, Athletics: 1 },
+  58: { Survival: 1, Persuasion: 1, Performance: 1 },
+  59: { Stealth: 3 },
+  60: { Might: 1, Taming: 1, Foresight: 1 },
+  61: { Might: 1, Taming: 1 },
+  62: { Taming: 2 },
+  63: { Might: 1, Arcana: 1 },
+  64: { Arcana: 2, Performance: 1 },
+  65: { Arcana: 2, Foresight: 1 },
+  66: { Perception: 2 },
+  67: { Athletics: 1 },
+  68: { Survival: 1, Arcana: 1 },
+  69: { Might: 2, Survival: 1 }
+};
+
   const opposites = {
     PWR: "WIT",
     WIT: "PWR",
@@ -122,58 +188,86 @@
     ALL: "END"
   };
 
-  function MakeCharacter() {
-    // Reset stats and attributes
-    let stats = { END: 0, INS: 0, WIT: 0, AGI: 0, ALL: 0, PWR: 0 };
-    let effects = { ...baseEffects };
+function MakeCharacter() {
+  // Reset stats and attributes
+  let stats = { END: 0, INS: 0, WIT: 0, AGI: 0, ALL: 0, PWR: 0 };
+  let effects = { ...baseEffects };
 
-    // Pick two unique numbers
-    let roll1 = getRandomInt(10, 69);
-    let roll2;
-    do {
-      roll2 = getRandomInt(10, 69);
-    } while (roll2 === roll1);
+  // Pick two unique numbers
+  let roll1 = getRandomInt(10, 69);
+  let roll2;
+  do {
+    roll2 = getRandomInt(10, 69);
+  } while (roll2 === roll1);
 
-    const rolls = [roll1, roll2];
+  const rolls = [roll1, roll2];
 
-    // Apply bonuses
-    rolls.forEach(roll => {
-      const bonuses = rollEffects[roll];
-      if (bonuses) {
-        for (let key in bonuses) {
-          if (stats.hasOwnProperty(key)) {
-            stats[key] += bonuses[key];
-          } else if (effects.hasOwnProperty(key)) {
-            effects[key] += bonuses[key];
-          }
+  // Apply bonuses
+  rolls.forEach(roll => {
+    const bonuses = rollEffects[roll];
+    if (bonuses) {
+      for (let key in bonuses) {
+        if (stats.hasOwnProperty(key)) {
+          stats[key] += bonuses[key];
+        } else if (effects.hasOwnProperty(key)) {
+          effects[key] += bonuses[key];
         }
       }
-    });
+    }
+  });
 
-    // Apply opposite stat subtractions
-    for (let stat in stats) {
-      const opposite = opposites[stat];
-      if (opposite && stats[stat] > 0) {
-        stats[opposite] -= stats[stat];
+  // Apply opposite stat subtractions
+  for (let stat in stats) {
+    const opposite = opposites[stat];
+    if (opposite && stats[stat] > 0) {
+      stats[opposite] -= stats[stat];
+    }
+  }
+
+  // Apply final stat effects (only those derived from stats)
+  effects.Health = baseEffects.Health + (stats.END || 0);
+  effects.Mana = effects.Mana + (stats.INS || 0); // Already includes bonus mana above
+  effects.ManaRegen = baseEffects.ManaRegen + (stats.WIT || 0);
+
+  // ✅ Place this line right after calculating ManaRegen:
+  if (effects.ManaRegen < 1) effects.ManaRegen = 1;
+
+  effects.Swiftness = baseEffects.Swiftness + (stats.AGI || 0);
+  effects.Spirit = baseEffects.Spirit + (stats.ALL || 0);
+  effects.Advantage = baseEffects.Advantage + (stats.PWR || 0);
+
+  // ✅ Place this line here after all stat/effect calculations:
+  calculateProficiencies([roll1, roll2]);
+
+  // Update display
+  document.getElementById("end").innerText = `END: ${stats.END || 0}    Health: ${effects.Health}`;
+  document.getElementById("ins").innerText = `INS: ${stats.INS || 0}    Mana: ${effects.Mana}`;
+  document.getElementById("wit").innerText = `WIT: ${stats.WIT || 0}    Mana Regen: ${effects.ManaRegen}`;
+  document.getElementById("agi").innerText = `AGI: ${stats.AGI || 0}    Swiftness: ${effects.Swiftness}`;
+  document.getElementById("all").innerText = `ALL: ${stats.ALL || 0}    Spirit: ${effects.Spirit}`;
+  document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
+}
+
+    function calculateProficiencies(rolls) {
+  let profs = {};
+
+  rolls.forEach(roll => {
+    const bonuses = proficiencyEffects[roll];
+    if (bonuses) {
+      for (let key in bonuses) {
+        if (!profs[key]) profs[key] = 0;
+        profs[key] += bonuses[key];
       }
     }
+  });
 
-    // Apply final stat effects (only those derived from stats)
-    effects.Health = baseEffects.Health + (stats.END || 0);
-    effects.Mana = effects.Mana + (stats.INS || 0); // Already includes bonus mana above
-    effects.ManaRegen = baseEffects.ManaRegen + (stats.WIT || 0);
-    effects.Swiftness = baseEffects.Swiftness + (stats.AGI || 0);
-    effects.Spirit = baseEffects.Spirit + (stats.ALL || 0);
-    effects.Advantage = baseEffects.Advantage + (stats.PWR || 0);
-
-    // Update display
-    document.getElementById("end").innerText = `END: ${stats.END || 0}    Health: ${effects.Health}`;
-    document.getElementById("ins").innerText = `INS: ${stats.INS || 0}    Mana: ${effects.Mana}`;
-    document.getElementById("wit").innerText = `WIT: ${stats.WIT || 0}    Mana Regen: ${effects.ManaRegen}`;
-    document.getElementById("agi").innerText = `AGI: ${stats.AGI || 0}    Swiftness: ${effects.Swiftness}`;
-    document.getElementById("all").innerText = `ALL: ${stats.ALL || 0}    Spirit: ${effects.Spirit}`;
-    document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
+  // Build and display the proficiency text
+  let profText = "<strong>Proficiencies:</strong><br>";
+  for (let key in profs) {
+    profText += `+${profs[key]} ${key}<br>`;
   }
+  document.getElementById("proficiencies").innerHTML = profText;
+}
 
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
