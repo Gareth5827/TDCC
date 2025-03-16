@@ -350,7 +350,12 @@ function MakeCharacter() {
 
     // Add passives, abilities, and weapons based on rolls
     if (passives[roll]) {
-      PassiveBox.push(...passives[roll]);
+      passives[roll].forEach(passive => {
+        // Split passive text at double spaces to separate multiple passives
+        const splitPassives = passive.split("  ");
+        // Add each passive to the PassiveBox array
+        PassiveBox.push(...splitPassives);
+      });
     }
     if (abilities[roll]) {
       AbilityBox.push(...abilities[roll]);
@@ -394,7 +399,7 @@ function MakeCharacter() {
   document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
 
   // Update Passive, Ability, Weapon, and Proficiency Boxes
-  document.getElementById("PassiveBox").innerText = `Passive: ${PassiveBox.length > 0 ? PassiveBox.join(", ") : "None"}`;
+  document.getElementById("PassiveBox").innerHTML = `Passive: ${PassiveBox.length > 0 ? PassiveBox.join("<br>") : "None"}`;
   document.getElementById("AbilityBox").innerText = `Ability: ${AbilityBox.length > 0 ? AbilityBox.join(", ") : "None"}`;
   document.getElementById("WeaponBox").innerText = `Weapon: ${WeaponsBox.length > 0 ? WeaponsBox.join(", ") : "None"}`;
   document.getElementById("proficiencies").innerHTML = `<strong>Proficiencies:</strong><br>${ProficiencyBox.length > 0 ? ProficiencyBox.join(", ") : "None"}`;
