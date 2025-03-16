@@ -32,6 +32,7 @@
 <body>
 
   <button onclick="MakeCharacter()">Reroll</button>
+  <button onclick="Levelup()">Levelup</button>
 
   <div class="stat-block" id="end">END: 0    Health: 23</div>
   <div class="stat-block" id="ins">INS: 0    Mana: 20</div>
@@ -397,15 +398,100 @@
   }
 }
 
+let previousRolls = []; // Track previous rolls to ensure uniqueness
+
+function Levelup() {
+  if (previousRolls.length >= 69 - 10 + 1) {
+    alert("No more unique rolls available!");
+    return;
+  }
+
+  let newRoll;
+  do {
+    newRoll = getRandomInt(10, 69);
+  } while (previousRolls.includes(newRoll));
+
+  previousRolls.push(newRoll);
+
+  // Apply bonuses from the new roll
+  const bonuses = rollEffects[newRoll] || {};
+  Object.keys(bonuses).forEach(key => {
+    if (stats.hasOwnProperty(key)) {
+      // Update the stat and its opposite
+      updateStat(stats, key, bonuses[key]);
+    } else if (effects.hasOwnProperty(key)) {
+      // Update the attribute
+      effects[key] += bonuses[key];
+    }
+  });
+
+  // Add passives, abilities, weapons, and items based on the new roll
+  if (passives[newRoll]) {
+    passives[newRoll].forEach(passive => {
+      const splitPassives = passive.split("  ");
+      PassiveBox.push(...splitPassives);
+    });
+  }
+  if (abilities[newRoll]) {
+    abilities[newRoll].forEach(ability => {
+      const splitAbilities = ability.split("  ");
+      AbilityBox.push(...splitAbilities);
+    });
+  }
+  if (weapons[newRoll]) {
+    weapons[newRoll].forEach(weapon => {
+      const splitWeapons = weapon.split("  ");
+      WeaponsBox.push(...splitWeapons);
+    });
+  }
+  if (Items[newRoll]) {
+    Items[newRoll].forEach(item => {
+      const splitItems = item.split("  ");
+      ItemsBox.push(...splitItems);
+    });
+  }
+
+  // Apply proficiency effects from the new roll
+  const proficiencyBonuses = proficiencyEffects[newRoll] || {};
+  for (let key in proficiencyBonuses) {
+    ProficiencyBox.push(`+${proficiencyBonuses[key]} ${key}`);
+  }
+
+  // Apply final stat effects
+  effects.Health += stats.END || 0;
+  effects.Mana += stats.INS || 0;
+  effects.ManaRegen += stats.WIT || 0;
+  if (effects.ManaRegen < 1) effects.ManaRegen = 1;
+  effects.Swiftness += stats.AGI || 0;
+  effects.Spirit += stats.ALL || 0;
+  effects.Advantage += stats.PWR || 0;
+
+  // Update UI
+  document.getElementById("end").innerText = `END: ${stats.END || 0}    Health: ${effects.Health}`;
+  document.getElementById("ins").innerText = `INS: ${stats.INS || 0}    Mana: ${effects.Mana}`;
+  document.getElementById("wit").innerText = `WIT: ${stats.WIT || 0}    Mana Regen: ${effects.ManaRegen}`;
+  document.getElementById("agi").innerText = `AGI: ${stats.AGI || 0}    Swiftness: ${effects.Swiftness}`;
+  document.getElementById("all").innerText = `ALL: ${stats.ALL || 0}    Spirit: ${effects.Spirit}`;
+  document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
+
+  // Update Passive, Ability, Weapon, Items, and Proficiency Boxes
+  document.getElementById("PassiveBox").innerHTML = `Passive: ${PassiveBox.length > 0 ? PassiveBox.join("<br>") : "None"}`;
+  document.getElementById("AbilityBox").innerHTML = `Ability: ${AbilityBox.length > 0 ? AbilityBox.join("<br>") : "None"}`;
+  document.getElementById("WeaponBox").innerHTML = `Weapon: ${WeaponsBox.length > 0 ? WeaponsBox.join("<br>") : "None"}`;
+  document.getElementById("ItemsBox").innerHTML = `Items: ${ItemsBox.length > 0 ? ItemsBox.join("<br>") : "None"}`;
+  document.getElementById("proficiencies").innerHTML = `<strong>Proficiencies:</strong><br>${ProficiencyBox.length > 0 ? ProficiencyBox.join(", ") : "None"}`;
+}
+
 function MakeCharacter() {
   // Reset stats, attributes, and boxes
-  let stats = { END: 0, INS: 0, WIT: 0, AGI: 0, ALL: 0, PWR: 0 };
-  let effects = { ...baseEffects };
-  let WeaponsBox = [];
-  let AbilityBox = [];
-  let PassiveBox = [];
-  let ProficiencyBox = [];
-  let ItemsBox = [];
+  stats = { END: 0, INS: 0, WIT: 0, AGI: 0, ALL: 0, PWR: 0 };
+  effects = { ...baseEffects };
+  WeaponsBox = [];
+  AbilityBox = [];
+  PassiveBox = [];
+  ProficiencyBox = [];
+  ItemsBox = [];
+  previousRolls = []; // Reset previous rolls
 
   // Pick two unique numbers
   let roll1 = getRandomInt(10, 69);
@@ -413,6 +499,8 @@ function MakeCharacter() {
   do {
     roll2 = getRandomInt(10, 69);
   } while (roll2 === roll1);
+
+  previousRolls.push(roll1, roll2); // Track initial rolls
 
   const rolls = [roll1, roll2];
 
