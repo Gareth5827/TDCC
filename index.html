@@ -333,7 +333,7 @@ function MakeCharacter() {
   let AbilityBox = [];
   let PassiveBox = [];
 
-  // Pick two unique numbers (Old method logic)
+  // Pick two unique numbers
   let roll1 = getRandomInt(10, 69);
   let roll2;
   do {
@@ -357,26 +357,10 @@ function MakeCharacter() {
       } else if (key === "Passives") {
         PassiveBox.push(...bonuses[key]); // Add passives
       }
-  document.getElementById("PassiveBox").innerText = "Passive: " + (chosenPassives.length > 0 ? chosenPassives.join(", ") : "None");
-  document.getElementById("AbilityBox").innerText = "Ability: " + (chosenAbilities.length > 0 ? chosenAbilities.join(", ") : "None");
-  document.getElementById("WeaponBox").innerText = "Weapon: " + (chosenWeapons.length > 0 ? chosenWeapons.join(", ") : "None");
     });
   });
 
-  // Print results (if needed)
-  console.log("Weapons:", WeaponsBox.join("\n"));
-  console.log("Abilities:", AbilityBox.join("\n"));
-  console.log("Passives:", PassiveBox.join("\n"));
-
-  return { stats, effects, WeaponsBox, AbilityBox, PassiveBox };
-}
-
-// Old method for getting unique rolls (removing getUniqueRolls function)
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-  // Apply opposite stat subtractions
+  // Ensure opposite stats are applied
   for (let stat in stats) {
     const opposite = opposites[stat];
     if (opposite && stats[stat] > 0) {
@@ -384,29 +368,32 @@ function getRandomInt(min, max) {
     }
   }
 
-  // Apply final stat effects (only those derived from stats)
+  // Apply final stat effects
   effects.Health = baseEffects.Health + (stats.END || 0);
-  effects.Mana = effects.Mana + (stats.INS || 0); // Already includes bonus mana above
+  effects.Mana += stats.INS || 0;
   effects.ManaRegen = baseEffects.ManaRegen + (stats.WIT || 0);
-
-  // ✅ Place this line right after calculating ManaRegen:
   if (effects.ManaRegen < 1) effects.ManaRegen = 1;
-
   effects.Swiftness = baseEffects.Swiftness + (stats.AGI || 0);
   effects.Spirit = baseEffects.Spirit + (stats.ALL || 0);
   effects.Advantage = baseEffects.Advantage + (stats.PWR || 0);
 
-  // ✅ Place this line here after all stat/effect calculations:
-  calculateProficiencies([roll1, roll2]);
-
-  // Update display
+  // Update UI
   document.getElementById("end").innerText = `END: ${stats.END || 0}    Health: ${effects.Health}`;
   document.getElementById("ins").innerText = `INS: ${stats.INS || 0}    Mana: ${effects.Mana}`;
   document.getElementById("wit").innerText = `WIT: ${stats.WIT || 0}    Mana Regen: ${effects.ManaRegen}`;
   document.getElementById("agi").innerText = `AGI: ${stats.AGI || 0}    Swiftness: ${effects.Swiftness}`;
   document.getElementById("all").innerText = `ALL: ${stats.ALL || 0}    Spirit: ${effects.Spirit}`;
   document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
+
+  // **Correctly Update Passive, Ability, and Weapon Boxes**
+  document.getElementById("PassiveBox").innerText = `Passive: ${PassiveBox.length > 0 ? PassiveBox.join(", ") : "None"}`;
+  document.getElementById("AbilityBox").innerText = `Ability: ${AbilityBox.length > 0 ? AbilityBox.join(", ") : "None"}`;
+  document.getElementById("WeaponBox").innerText = `Weapon: ${WeaponsBox.length > 0 ? WeaponsBox.join(", ") : "None"}`;
+
+  // Update proficiencies
+  calculateProficiencies(rolls);
 }
+
 
     function calculateProficiencies(rolls) {
   let profs = {};
