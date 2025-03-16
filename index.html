@@ -35,6 +35,9 @@
   <div class="stat-block" id="agi">AGI: 0    Swiftness: 10</div>
   <div class="stat-block" id="all">ALL: 0    Spirit: 10</div>
   <div class="stat-block" id="pwr">PWR: 0    Advantage: 0</div>
+  <div id="PassiveBox"></div>
+  <div id="AbilityBox"></div>
+  <div id="WeaponBox"></div>
   
       <div id="proficiencies" style="margin-left: 30px; padding: 10px; border: 1px solid #ccc; width: 250px;">
   <strong>Proficiencies:</strong><br>
@@ -179,6 +182,134 @@
   69: { Might: 2, Survival: 1 }
 };
 
+const passives = {
+  10: ["Hellish Embers: Deal 3 extra Fire damage whenever you deal Fire damage"],
+  11: ["Sages charm: Whenever you buff an ally, grant them a 6 Health shield for this round (does not stack)"],
+  12: ["Rotting Touch: Inflict Decay on critical strikes"],
+  14: ["Cull of the charred: +3 to Hit against Burning targets"],
+  15: ["Demonic tactics: Burn on critical strikes. Additionally, your first action of a turn has a +2 to hit"],
+  17: ["Dragonhide: You take 1D4 less damage from [Attacks]   Thorny: When a unit attack hits you, they take 1 + (½ END mod) damage"],
+  18: ["Toxin charm: Whenever an enemy unit within a 20 foot range is Poisoned or inflicted with Decay, deal 3 damage to them  Cursed strikes: Whenever you deal deal 8+ Magic damage to a unit, Poison them"],
+  19: ["Heavy hitter: Stun 2 on critical strikes"],
+  20: ["Arcane mastery: Gain +1 INS for every 10 max mana you have"],
+  22: ["Cull of the meek: When targeting a Debuffed enemy, gain +2 to Hit"],
+  27: ["Reapers blessing: Landing an [Attack] heals you for 2 Health, Critically striking heals you for 5 Health   Dwarven blood: At the start of your turn, heal 2 health for every 10 health you are missing"],
+  28: ["Imps agility: When you get hit by a spell, move 5 feet in any direction   Demonic blood: You take 1D6 less Fire damage"],
+  30: ["Blessing of the wise: Get a +2 to [Spell] rolls when targeting any unit with less WIT than you"],
+  33: ["Arcane ferocity: When you critically strike, deal 1D4 magic damage and 2 dark damage"],
+  34: ["Wind god’s decree: When you critically strike, knock the target back by 10 feet, additionally you have +2 to hit"],
+  37: ["Blinding essence: [Spell]s you cast inflict a debuff that gives the target -1 to hit until the end of their turn"],
+  39: ["Hunters ferocity: Your critical strikes deal an additional 5 damage, and you get a +2 to hit"],
+  42: ["Gladiator: [Attack] rolls deal an additional 2 damage"],
+  45: ["Eyes of Edrid: When making INS rolls, you get a +2"],
+  46: ["Necrotic: You deal an additional 2 poison damage whenever you deal poison damage"],
+  48: ["Improvised mastery: While making an unarmed (Weapon) action, gain a +2 to hit"],
+  50: ["Spirit armour: Whenever you are critically struck, knock back the attacker / caster by 10 feet and take 1D4 less damage. Additionally, if there are 3 or more enemies within a 15 ft range, then you take 1D4 less damage from all sources   Blessing of the damned: When you are inflicted with a debuff, roll 1D20, if you get a 14+, you are no longer affected by the debuff"],
+  53: ["Heavy handed: Your (Weapon) and [Attacks] knock the target prone on critical strikes"],
+  54: ["Aura of the frigid one: Whenever you deal magic damage to an enemy unit within a 15 ft range, they are slowed by 5 ft until the end of their turn (does not stack)"],
+  55: ["Mark of the holy: Whenever you target an ally with an action, they gain a 1D4 + (your END mod) shield"],
+  58: ["Hasted: Whenever you hit an enemy, move 5 ft in any direction   Rogue tactics: After moving, your next action has a +2 to hit"],
+  59: ["Sharpshot: When dealing damage to an enemy, that enemy must make an AGI roll against you, if they fail and are under 10 health, they die"],
+  62: ["Hunters agility: When being attacked, roll 1D20, if you roll a 16+, then the attack misses and you move 5 ft in any direction"],
+  65: ["Heightened senses: Allies you shield have a +2 to hit while they are shielded"],
+  66: ["Dark pact: Whenever you debuff an enemy you deal 1D6 magic damage to them   Wave or mist: All units within a 10 ft range must make an INS roll against you, any unit that fails has Blind 2"],
+  67: ["Bloodthirsty: Rolling an 18+ on [Attacks] is considered a critical strike   Heartseeker: +4 to hit on [Attacks]"],
+  68: ["Momentum: After using a movement ability, your next (Weapon) action has a +2 to hit and deals an additional 1D6 magic damage"],
+  69: ["Limit break: You can use infinite (Weapon) actions in a turn, but you may only use each (Weapon) action once"]
+};
+
+const abilities = {
+  10: ["Volcanic Eruption: [Fire] [Spell] [Enemy] [20 FT] Deal 1D10 + (WIT mod) Fire damage to all enemies within a 10 ft area [3 TP, 6 Mana] {you may ignite something for 4 Mana}   Spark: [Spell] [Enemy] [10 FT] Deal 1D4 + (INS mod) Magic damage, you may spend 4 Mana to deal Fire damage instead [2 TP]"],
+  11: ["Aquatic blessing: [Water] [Spell] [Ally] [20 FT] Grant target +5 speed and +3 Magic damage on all [Attack] actions [2 TP, 8 Mana] {you may cast this to make water for 4 Mana}   Tidebreaker: [Water] [Spell] [Ally] [15 FT] Target gets healed by 2 + (your INS mod) and gets moved 10 feet in any direction [2 TP, 7 Mana]"],
+  12: ["Blowdart: [Poison] [Attack] [Enemy] [20 FT] [Poison] Deal 2 + (AGI mod) [2 TP] {you may Poison something}"],
+  13: ["Tsunami: [Water] [Spell] Target a 15 foot wide and 20 foot long area in a direction, all units inside the range need to make an END roll against you, if they fail they are knocked to the end of the area [3 TP, 3 Mana] {you may cast this to make water}  Abyssal claw: [Spell] Deal 1D4 + (END mod) magic damage [1 TP, 4 Mana]"],
+  14: ["Flintlock pouch: [Fire] [Attack] [Enemy] [10 FT] Once per turn, target an enemy in range, they are Burning [2 TP] OR [4 Mana] {you may cast this to make fire for 4 mana}"],
+  15: ["Demonic extinguish: [Spell] [Enemy] [20 FT] Target a burning enemy within range, they are no longer burning and take 1D8 + (WIT mod) Magic damage [2 TP, 4 Mana]"],
+  16: ["Sunbeam: [Spell] [All] [20 FT] Target takes 1D6 + (INS mod) Magic damage and has Blind 1 applied. If they are an ally, heal them for (their INS mod (min 1))[2 TP, 6 Mana]"],
+  17: ["Dragonscale potion: Once per turn the next [Attack] you take deals 1 damage [1 TP] OR [3 Mana]"],
+  19: ["Stone wall: [Terrain] make a 5 foot long and 15 foot wide stone wall that has 20 Health. It lasts for the round. Any ally within a 10 ft range can spend 2 TP to climb it, if so they are on High ground [3 TP, 4 Mana] {you may cast this to make terrain for 2 Mana}   Boulder toss: [Attack] [Enemy] [20 FT] Deal 1D8 + (END mod) damage [2 TP, 6 Mana]"],
+  20: ["Arcane bolt: [Spell] [Enemy] [20 FT] Deal 1D12 + (INS mod) Magic damage [2 TP, 12 Mana] OR [3 TP, 7 Mana]"],
+  21: ["Ray of sunshine: [Light] All units within a 10 foot area around you must make an INS roll against you, any unit that fails has Blind 3 and takes 1D6 + (INS mod) magic damage [2 TP, 12 Mana] OR [3 TP, 7 Mana] {you may cast this to make light for 5 Mana}   Holy ray: [Spell] [Ally] [15 FT] Target is healed by 2 + (ALL mod) and gains an (INS mod) shield [2 TP, 6 Mana]   Empower: [Spell] [Ally] [15 FT] Target gains +1 to hit and +2 + (WIT mod) damage on their next (Weapon) action [2 TP, 4 Mana]"],
+  22: ["Petrifying gaze: [Spell] [Enemy] [20 FT] Target is slowed by 10 ft and takes (ALL mod) magic damage for every [Spell] that hits them [2 TP, 10 Mana]   Energy syphon: [Spell] [Enemy] [15 FT] Target takes 2 + (ALL mod) magic damage, you heal for the damage dealt"],
+  24: ["Thunderbolt: [Spell] [Enemy] [25 FT] Deal 1D8 + (INS mod) magic damage, if there’s another enemy in a 10 foot range of the target, they take 1D6 magic damage [2 TP, 6 Mana]   Thunderstorm: [30 FT] Target a 10 x 10 ft area that’s considered Slippery until the start of your next turn. Also target one enemy inside the area to take 1D6 + (INS mod) magic damage [2 TP, 8 Mana]   Fierce gust: [Spell] [Enemy] [20 FT] Target gets pushed 10 ft away from you and must make an END roll against you, they are knocked prone on fail [2 TP, 6 Mana]"],
+  25: ["Drown: [Water] [Spell] [Enemy] [20 FT] Make the spell roll with a -2, if it hits deal 3D4 + (INS mod) magic damage [2 TP, 10 Mana] {you may cast this make water for 5 Mana}   Water barrier: [Self] Gain +2 Swiftness and a 4 Health shield this turn [2 TP, 6 Mana]"],
+  26: ["Underworld curse: [Fire] [Spell] [Enemy] [30 FT] Target takes 3 + (WIT mod) fire damage for every non movement action they use on their turn [2 TP, 8 Mana] {you may cast this to make fire for 4 mana}   Infernal shield: [Spell] [All] [20 FT] Target takes 3 + (WIT mod) fire damage but gains +4 Swiftness until the end of their next turn [2 TP, 6 Mana]"],
+  29: ["Aquatic chains: [Water] [Spell] [Enemy] [20 FT] Target makes an AGI roll against you, on fail they cannot move on their turn and take 1D6 + (WIT mod) magic damage [2 TP, 8 Mana]"],
+  30: ["Noxious gale: [Poison] [Spell] Force all units within a 15 foot range to make an INS roll against you, any that fail take 1D6 + (INS mod) poison damage, any that pass are moved outside of the area [3 TP, 10 Mana] {you may cast this to make poison}   Mystic fang: [Spell] [Enemy] [30 FT] Target takes 1D6 + (INS mod) poison damage [2 TP, 5 Mana]"],
+  31: [" Curse of the wartorn: [Spell] [Enemy] [20 FT] If the target attacks or casts an ability on their turn, they take 2D6 + (INS mod) dark damage [2 TP, 8 Mana]   Spirit shred: [Spell] [Enemy] [20 FT] Targets Spirits is reduced by 3 until the end of their next turn [2 TP, 6 Mana]   Aura of insanity: [Self] Force all units within a 15 FT range to make an INS roll against you, any that fail take 1D6 + (INS mod) dark damage and have a -2 to hit until the end of their turn [2 TP, 8 Mana]"],
+  32: ["Blessing of the mountain: [Spell] [Ally] [20 FT] Target is slowed by 10 speed, but gains an additional 2D4 damage on their next (Weapon) action (does not stack) [2 TP, 6 Mana]   Stone pillar: [Terrain] [15 FT] Target a 5 foot area within range, a stone pillar is maked on it. The stone pillar has 40 Health. It lasts for the round. Any unit within a 10 ft range can spend 2 TP to climb it, if so they are on High ground [2 TP, 6 Mana] {you may cast this to make terrain for 3 Mana}"],
+  33: ["Hail amulet: [Spell] [Enemy] [15 FT] Once per turn, you may target an enemy in range and deal 1D6 magic damage and force them to make a WIT roll against you, they are Paralyzed on fail [1 TP]"],
+  34: ["Sun in a bottle: [Light] Once per turn, throw the bottle on the ground inflicting Stun 1 to all units within a 10 foot range [5 Mana] {you may cast this to make light for 5 Mana}"],
+  35: ["Wrath of the holy: [Attack] [Enemy] [15 FT] [Light] Deal 1D6 + (INS mod) magic damage and inflict Stun 1 [2 TP, 7 Mana] {you may cast this to make light for 2 Mana}"],
+  36: ["Infernal scream: [Fire] Force all units within a 10 foot range to make an END roll against you, any unit that fails is knocked 10 ft back and takes 1D6 + (WIT mod) Fire damage [2 TP, 5 Mana] {you may cast this to make fire}   Hellish charge: Target a 5 ft wide and 15 ft long area in any direction. All units in that area must make an END roll against you, if they fail they are knocked prone and take (END mod) damage [2 TP, 7 Mana]"],
+  37: ["Sinister orb: [Spell] [Enemy] [20 FT] If the target is debuffed they take 2D6 + (END mod) magic damage [2 TP, 6 Mana]"],
+  38: ["Wilder shape: [Self] Heal 4 Health and gain +2 to all rolls until the end of your next turn [1 TP, 10 Mana]   Poison touch: [Poison] [Attack] [Enemy] [10 FT] Target takes 1D6 + (PWR mod) poison damage [2 TP]"],
+  39: ["Honed strike: [Self] Gain +2 to hit and deal +5 damage on your next (Weapon) action [2 TP, 5 Mana]"],
+  40: ["Thunderform: [Self] Gain -4 to hit, but +3 Swiftness +3 Spirit until the start of your next turn, and deal 1D10 magic damage to the closest enemy in a 15 ft range [2 TP, 8 Mana]  Thundercloud: make a thundercloud that gives you high ground until the start of your next turn. The next enemy to use an action against you fails and takes 1D4 + (INS mod) magic damage [2 TP, 8 Mana]"],
+  41: ["Sinister blessing: [Spell] [All] [30 FT] Target takes 1D4 magic damage and is Burning, but gains +(WIT mod) hit until the end of their turn (does not stack) [2 TP, 8 Mana]   Soul rip: [Spell] [All] [30 FT] Target is healed by 1D10 + (WIT mod) health, but is Nearsighted [2 TP, 8 Mana]"],
+  42: ["Fierce tackle: [Attack] [Enemy] [20 FT] Move to the targets position dealing 1D6 + (PWR mod) damage, they make a PWR roll against you, on fail are knocked prone [2 TP, 6 Mana]"],
+  44: [" Righteous shove: [Attack] [Enemy] [15 FT] Force the target to make a PWR roll against you. On fail they are knocked prone and take 1D6 + (PWR mod) damage, on critical strike they are Paralyzed [2 TP, 5 Mana]   Toss: [Attack] [All] [10 FT] Target makes a PWR roll against you, on fail, they are thrown to a new location in a 20 ft range and take 1D6 - (their END mod) [2 TP, 5 Mana]   Headbutt: [Attack] [Enemy] [10 FT] Target takes 1D10 + (END mod) damage, and must make an END roll against you, on fail they are knocked prone [2 TP, 5 Mana]"],
+  45: ["Lightning bomb: [Spell] [Enemy] [20 FT] Deal 1D6 + (WIT mod) magic damage and debuff the target. At the end of your turn they take 1D6 + (WIT mod) magic damage if the target is within 10 ft of another enemy, it takes equal damage [2 TP, 5 Mana]   Mystic push: [Spell] [Enemy] [20 FT] The target makes an INS roll against you, on fail they are moved 10 ft in any direction and take 1D4 + (INS mod) magic damage [2 TP, 7 Mana]"],
+  46: ["Plague cloud: [Poison] [Spell] [20 FT] Target a 10 x 10 ft area, all units inside must make an INS roll against you, any that fail take 1D10 + (INS mod) poison damage [2 TP, 10 Mana] {you may cast this to make poison for 3 Mana}"],
+  48: ["War stance: [Self] All enemy units within a 15 ft range must make an INS save against you, on fail they have -3 PWR until the end of their turn. Also move 10 ft [2 TP, 6 Mana]   Horrific Foresight: [Self] Target an enemy, you gain +3 to hit against them until the end of this turn (does not stack) [1 TP, 4 Mana]"],
+  49: ["Helping horror: [Spell] [Enemy] [20 FT] Target gets knocked prone, takes (INS mod) magic damage, and you move 10 ft [2 TP, 7 Mana]"],
+  50: ["Energy transfer [Spell] [Allies] [15 ft] Transfer 5 Mana to heal an ally by 7 Health [2 TP, 5 Mana]"],
+  51: ["Wildpool: [Water] [Spell] [Ally] [20 FT] Target has a special buff on them, when your turn ends, all units within a 10 ft range of the target are knocked 10 ft back [2 TP, 7 Mana] {you may cast this to make water}   Waveblade: [Spell] [Ally] [Self] [20 FT] Target gets a buff, the next (Weapon) action they do has an additional +1 to hit and deals +4 magic damage [2 TP, 4 Mana]"],
+  52: ["Warpath: [Spell] [Enemy] [20 FT] Target is slowed by 10 ft and takes 4 dark damage whenever they are hit by a (Weapon) action until the end of their turn [2 TP, 7 Mana]   Essence prison: [Spell] [Enemy] [20 FT] Target is debuffed, if they move on their turn, they take 1D10 + (INS mod) dark damage [1 TP, 15 Mana]"],
+  53: ["Tremor: [Self] Target a 5 foot wide and 25 foot long area in any direction, all units in that area must make an END roll against you, any that fail are knocked prone and take 1D10 + (END mod) damage [3 TP, 14 Mana]"],
+  54: ["Freezing tomb: [Spell] [Enemy] [25 FT] Target must make an INS roll against you, if they fail, they take 1D10 + (INS mod) magic damage and cannot move until the end of their turn [2 TP, 10 Mana]   Icicle: [Spell] [Enemy] [15 FT] Target takes 1D4 + (INS mod) magic damage [1 TP, 3 Mana]"],
+  55: ["Holy light: [Light] [Spell] [20 FT] Target a 10 x 10 ft area, all units in that area must make an INS and END roll against you. Any unit that fails the INS roll takes 1D8 magic damage and any unit that fails the END roll gets moved out of the area. Any allies inside the area are healed by 1D4 + (your END mod) Health [2 TP, 7 Mana] {you may cast this to make light for 2 Mana}"],
+  56: ["Draconic voice: Target a 5 foot wide and 20 foot long area, all units inside that area must make an END roll against you, failing units are knocked prone and 10 ft back [2 TP, 9 Mana]   Royal charge: All allies within a 10 ft range gain +10 speed and +1 Swiftness until the end of their turn [2 TP, 8 Mana]"],
+  57: ["Rite of torment: [Spell] [Enemy] [30 FT] Target must make an INS roll against you, if they fail, the are Nearsighted and have Dread [2 TP, 8 Mana]   Spirit rot: [Spell] [Enemy] [20 FT] Steal 1D8 Mana from the target and force them to make an INS roll against you, if they fail they take 1D10 magic damage [2 TP, 6 Mana]"],
+  58: ["Steel arrow: [Attack] [Enemy] [20 FT] Deal 1D4 + (AGI mod) damage [1 TP, 4 Mana]"],
+  59: ["Volley: [25 FT] Target a 10 x 10 ft area within range, all units in the area must make an AGI roll against you, any unit that fails takes (AGI mod) damage [2 TP, 7 Mana]"],
+  60: ["Spear sweep: Force all units within a 10 ft range to make an AGI roll against you, any unit that fails takes 2D6 + (INS mod) magic damage [2 TP, 7 Mana]   Spirit form: [Self] Remove all debuffs and move 10 ft in any direction [1 TP, 10 Mana]"],
+  61: ["Leap: Move 20 ft in any direction [1 TP, 4 Mana]"],
+  62: ["Eagle eyes: Increase the range of your next action by 5 ft [1 TP, 4 Mana]"],
+  63: ["Dark palm: [Attack] [Enemy] [5 FT] Deal 1D8 + (PWR mod) dark damage and force all units within a 5 ft range to make an END roll against you, failing units take 3 dark damage [2 TP, 3 Mana]   Sinister uppercut: [Attack] [Enemy] [10 FT] Deal 1D8 + (PWR mod) dark damage and force the target to make an AGI roll of 12+, on fail they are knocked prone [2 TP, 4 Mana]   Facebreaker: [Attack] [Enemy] [10 FT] Make 2 attack rolls, for each roll that hits deal 1D6 + (PWR mod) dark damage [4 TP, 6 Mana]"],
+  64: ["Mind break: [Spell] [Enemy] [20 FT] Deal 3 * the difference between yours and the targets INS mod as magic damage [3 TP, 10 Mana]   Astral cleanse: [Spell] [Enemy] [20 FT] Remove all buffs the target has and deal 2 magic damage for every buff removed [3 TP, 10 Mana]   Astral spike: [Spell] [Enemy] [15 FT] Deal 1D4 + (INS mod) magic damage [1 TP, 5 Mana]"],
+  65: ["Barrier: [Spell] [Self] [Allies] [20 FT] Grant target a 6 Health shield until the end of their turn [2 TP, 2 Mana]   Shatter: [Spell] [Enemy] [20 FT] Target loses all shields and takes 1D4 magic damage [2 TP, 5 Mana]"],
+  67: ["Sucker punch: [Attack] [Enemy] [10 FT] Deal (PWR mod) damage [1 TP]"],
+  68: ["Spark jab: [Spell] [Enemy] [10 FT]: Deal 1D4 + (INS mod) magic damage, target must make an AGI roll against you, on fail they have Blind 2 [1 TP, 4 Mana]   Zip: [Spell] [Enemy] [40 FT]: {can only target Debuffed enemies} Move anywhere within a 5 FT range of the target and deal 1D4 magic damage to them [2 TP, 5 Mana]"]
+};
+
+const weapons = {
+  10: ["Snakeskin Whip: (Weapon) [Attack] [Enemy] [15 FT] Deal 1D6 + (AGI mod) damage [2 TP]"],
+  13: ["Water amulet: (Weapon) [Self] Force all units within a 10 foot range to make an END roll against you, any unit that fails is knocked outside of the range [2 TP]"],
+  14: ["Angel sword: (Weapon) [Attack] [Enemy] [10 FT] Deal 1D8 + (PWR mod) damage [2 TP]"],
+  15: ["Hell blade: (Weapon) [Spell] [Enemy] [10 FT] Deal 1D6 + (WIT mod) Fire damage [2 TP]"],
+  16: ["Angel staff: (Weapon) [Spell] [Enemy] [15 FT] Deal 1D6 + (END mod) Magic damage [2 TP]  Angel palm: (Weapon) [Light] [Spell] [Enemy] [15 FT] Inflict Blind 2 [2 TP] {you may use Angel palm to make light}"],
+  18: ["Wyverns nail: (Weapon) [Spell] [Enemy] [10 FT] Deal 1D6 + (AGI mod) Magic damage [2 TP]"],
+  20: ["Archmage's staff: (Weapon) [Spell] [Enemy] [15 FT] Deal 2 + (INS mod) Magic damage [2 TP]"],
+  23: ["Golden broadsword: (Weapon) [Attack] [Enemy] [10 FT] Deal 1D10 + (PWR mod) [2 TP]   Rampagers Javelin: (Weapon) [Attack] [Enemy] [20 FT] Deal 1D6 + (END mod) [3 TP]"],
+  26: ["Burning scimitar: (Weapon) [Spell] [Enemy] [10 FT] Target takes (INS + WIT mod) fire damage [1 TP]"],
+  28: ["Imps trident: (Weapon) [Attack] [Enemy] [10 FT] Deal 2 + (PWR mod) damage [1 TP]"],
+  29: ["Mace of the serpent: (Weapon) [Water] [Spell] [Enemy] [10 FT] Deal 1D12 + (WIT mod) magic damage [3 TP] {you may cast this to make water}   Dagger of the sunken: (Weapon) [Spell] [Enemy] [10 FT] Deal 1D6 + (AGI mod) magic damage [2 TP]"],
+  32: ["Stone warhammer (Weapon) [Attack] [Enemy] [15 FT] Deal 4D4 + (END mod) damage [4 TP]"],
+  33: ["Soul reaver: (Weapon) [Spell] [Enemy] [10 FT] Deal 1D10 + (WIT mod) magic damage [2 TP]"],
+  34: ["Molten lace: (Weapon) [Attack] [Enemy] [15 FT] Deal 1D4 + (ALL mod) fire damage [1 TP]"],
+  35: ["Claymore: (Weapon) [Attack] [Enemy] [10 FT] Deal 1D6 + 4 [2 TP]"],
+  38: ["Flail: (Weapon) [Attack] [Enemy] [10 FT] Deal 1D10 damage"],
+  39: ["Beheading axe: (Weapon) [Attack] [Enemy] [10 FT] Deal 1D6 + (PWR mod) damage [2 TP]"],
+  40: ["Lighting staff: (Weapon) [Spell] [Enemy] [15 FT] Deal 2 + (END + INS mod) magic damage, if there is an enemy unit within a 10 ft range of the target, they take equal damage [2 TP]"],
+  41: ["Dark priests staff: (Weapon) [Spell] [Enemy] [15 FT] Deal (WIT mod) Magic damage for every debuff the target has [1 TP]"],
+  42: ["Fury gauntlet: (Weapon) [Attack] [Enemy] [10 FT] Make two attack rolls, any that hit deal 1D4 + (PWR mod) damage [4 TP]"],
+  43: ["Cultists dagger: (Weapon) [Attack] [Enemy] [5 FT] Deal 5 + (AGI mod) damage [1 TP]   Cultists crossbow: (Weapon) [Attack] [Enemy] [20 FT] Deal 1D6 + (AGI mod) [2 TP]"],
+  47: ["Charred quarterstaff: (Weapon) [Fire] [Attack] [Enemy] [10 FT] Deal 1D4 + (PWR mod) fire damage [2 TP] {you may cast this to make fire}   Jungle spear: (Weapon) [Poison] [Attack] [Enemy] [10 FT] Deal 1D4 + (AGI mod) poison damage [2 TP] {you may cast this to make poison}   Oceanbound flail: (Weapon) [Water] [Attack] [Enemy] [10 FT] Deal 1D4 + (ALL mod) magic damage [2 TP] {you may cast this to make water}"],
+  49: ["Graveborn scythe: (Weapon) [Attack] [Enemy] [10 FT] Deal 2 + (PWR mod) dark damage [2 TP]   Graveborn staff: (Weapon) [Spell] [Enemy] [10 FT] Deal 1D6 + (INS mod) magic damage [2 TP]"],
+  52: ["Wartorn staff: (Weapon) [Spell] [Enemy] [15 FT] Deal 1D6 + 3 magic damage [2 TP]"],
+  53: ["Warhammer: (Weapon) [Attack] [Enemy] [10 FT] Deal 2D6 + (END mod) damage [3 TP]"],
+  55: ["Holy staff: (Weapon) [Spell] [Ally] [15 FT] Target is healed 1D8 + (ALL mod) Health [2 TP]"],
+  56: ["Battleaxe: (Weapon) [Attack] [Enemy] [10 FT] Deal 1D6 + 5 damage"],
+  57: ["Spirit blade: (Weapon) [Spell] [Enemy] [15 FT] Deal 1D12 + (INS mod) dark damage [2 TP, 6 Health]"],
+  59: ["Great crossbow: (Weapon) [Attack] [Enemy] [30 FT] Deal 1D8 + (AGI mod) [2 TP]"],
+  60: ["Ritual spear: (Weapon) [Attack] [Enemy] [15 FT] Deal 1D6 + (INS mod) magic damage [1 TP]"],
+  61: ["Dragon axe: (Weapon) [Attack] [Enemy] [15 FT] Deal 1D10 + (PWR mod) damage [3 TP]"],
+  62: ["Hunters bow: (Weapon) [Attack] [Enemy] [10 - 25 FT] Deal 1D8 + (AGI mod) damage [2 TP]"],
+  66: ["Sight slicer: (Weapon) [Spell] [Enemies] [10 FT] Deal 1D6 + (INS mod) damage and inflict Blind 4 [2 TP]"],
+  69: ["Bone shatterer: (Weapon) [Attack] [Enemy] [10 FT]: Deal 3D4 + (PWR mod) damage [3 TP]   Cursed katana: (Weapon) [Attack] [Enemy] [10 FT]: Deal 1D4 + (AGI and ALL mod) magic damage [3 TP]"]
+};
+
   const opposites = {
     PWR: "WIT",
     WIT: "PWR",
@@ -188,12 +319,21 @@
     ALL: "END"
   };
 
+    function assignCharacterTraits(roll) {
+    const passiveBox = document.getElementById("PassiveBox");
+    const abilityBox = document.getElementById("AbilityBox");
+    const weaponBox = document.getElementById("WeaponBox");
+}
+
 function MakeCharacter() {
-  // Reset stats and attributes
+  // Reset stats, attributes, and boxes
   let stats = { END: 0, INS: 0, WIT: 0, AGI: 0, ALL: 0, PWR: 0 };
   let effects = { ...baseEffects };
+  let WeaponsBox = [];
+  let AbilityBox = [];
+  let PassiveBox = [];
 
-  // Pick two unique numbers
+  // Pick two unique numbers (Old method logic)
   let roll1 = getRandomInt(10, 69);
   let roll2;
   do {
@@ -202,19 +342,39 @@ function MakeCharacter() {
 
   const rolls = [roll1, roll2];
 
-  // Apply bonuses
+  // Apply bonuses from rolls
   rolls.forEach(roll => {
-    const bonuses = rollEffects[roll];
-    if (bonuses) {
-      for (let key in bonuses) {
-        if (stats.hasOwnProperty(key)) {
-          stats[key] += bonuses[key];
-        } else if (effects.hasOwnProperty(key)) {
-          effects[key] += bonuses[key];
-        }
+    const bonuses = rollEffects[roll] || {}; // Ensure it doesn't crash if undefined
+    Object.keys(bonuses).forEach(key => {
+      if (stats.hasOwnProperty(key)) {
+        stats[key] += bonuses[key];
+      } else if (effects.hasOwnProperty(key)) {
+        effects[key] += bonuses[key];
+      } else if (key === "Weapons") {
+        WeaponsBox.push(...bonuses[key]); // Add weapons
+      } else if (key === "Abilities") {
+        AbilityBox.push(...bonuses[key]); // Add abilities
+      } else if (key === "Passives") {
+        PassiveBox.push(...bonuses[key]); // Add passives
       }
-    }
+  document.getElementById("PassiveBox").innerText = "Passive: " + (chosenPassives.length > 0 ? chosenPassives.join(", ") : "None");
+  document.getElementById("AbilityBox").innerText = "Ability: " + (chosenAbilities.length > 0 ? chosenAbilities.join(", ") : "None");
+  document.getElementById("WeaponBox").innerText = "Weapon: " + (chosenWeapons.length > 0 ? chosenWeapons.join(", ") : "None");
+    });
   });
+
+  // Print results (if needed)
+  console.log("Weapons:", WeaponsBox.join("\n"));
+  console.log("Abilities:", AbilityBox.join("\n"));
+  console.log("Passives:", PassiveBox.join("\n"));
+
+  return { stats, effects, WeaponsBox, AbilityBox, PassiveBox };
+}
+
+// Old method for getting unique rolls (removing getUniqueRolls function)
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
   // Apply opposite stat subtractions
   for (let stat in stats) {
