@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Character Reroll</title>
   <style>
+    #PassiveBox, #AbilityBox, #WeaponBox {
+  font-size: 18px; /* Adjust the font size as needed */
+  margin: 10px 0; /* Add some margin for better spacing */
+}
     body {
       font-family: sans-serif;
       display: flex;
@@ -358,10 +362,20 @@ function MakeCharacter() {
       });
     }
     if (abilities[roll]) {
-      AbilityBox.push(...abilities[roll]);
+      abilities[roll].forEach(ability => {
+        // Split ability text at double spaces to separate multiple abilities
+        const splitAbilities = ability.split("  ");
+        // Add each ability to the AbilityBox array
+        AbilityBox.push(...splitAbilities);
+      });
     }
     if (weapons[roll]) {
-      WeaponsBox.push(...weapons[roll]);
+      weapons[roll].forEach(weapon => {
+        // Split weapon text at double spaces to separate multiple weapons
+        const splitWeapons = weapon.split("  ");
+        // Add each weapon to the WeaponsBox array
+        WeaponsBox.push(...splitWeapons);
+      });
     }
   });
 
@@ -400,8 +414,8 @@ function MakeCharacter() {
 
   // Update Passive, Ability, Weapon, and Proficiency Boxes
   document.getElementById("PassiveBox").innerHTML = `Passive: ${PassiveBox.length > 0 ? PassiveBox.join("<br>") : "None"}`;
-  document.getElementById("AbilityBox").innerText = `Ability: ${AbilityBox.length > 0 ? AbilityBox.join(", ") : "None"}`;
-  document.getElementById("WeaponBox").innerText = `Weapon: ${WeaponsBox.length > 0 ? WeaponsBox.join(", ") : "None"}`;
+  document.getElementById("AbilityBox").innerHTML = `Ability: ${AbilityBox.length > 0 ? AbilityBox.join("<br>") : "None"}`;
+  document.getElementById("WeaponBox").innerHTML = `Weapon: ${WeaponsBox.length > 0 ? WeaponsBox.join("<br>") : "None"}`;
   document.getElementById("proficiencies").innerHTML = `<strong>Proficiencies:</strong><br>${ProficiencyBox.length > 0 ? ProficiencyBox.join(", ") : "None"}`;
 }
 
