@@ -332,6 +332,7 @@ function MakeCharacter() {
   let WeaponsBox = [];
   let AbilityBox = [];
   let PassiveBox = [];
+  let ProficiencyBox = [];
 
   // Pick two unique numbers
   let roll1 = getRandomInt(10, 69);
@@ -360,6 +361,28 @@ function MakeCharacter() {
     });
   });
 
+  // Apply proficiency effects
+  rolls.forEach(roll => {
+    const proficiencyBonuses = proficiencyEffects[roll] || {};
+    Object.keys(proficiencyBonuses).forEach(key => {
+      if (key === "Proficiencies") {
+        ProficiencyBox.push(...proficiencyBonuses[key]); // Add proficiencies
+      }
+    });
+  });
+
+  // Apply passives, abilities, and weapons effects similarly
+  rolls.forEach(roll => {
+    const passiveBonuses = passiveEffects[roll] || {};
+    PassiveBox.push(...(passiveBonuses.Passives || []));
+
+    const abilityBonuses = abilityEffects[roll] || {};
+    AbilityBox.push(...(abilityBonuses.Abilities || []));
+
+    const weaponBonuses = weaponEffects[roll] || {};
+    WeaponsBox.push(...(weaponBonuses.Weapons || []));
+  });
+
   // Ensure opposite stats are applied
   for (let stat in stats) {
     const opposite = opposites[stat];
@@ -385,15 +408,15 @@ function MakeCharacter() {
   document.getElementById("all").innerText = `ALL: ${stats.ALL || 0}    Spirit: ${effects.Spirit}`;
   document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
 
-  // **Correctly Update Passive, Ability, and Weapon Boxes**
+  // **Correctly Update Passive, Ability, Weapon, and Proficiency Boxes**
   document.getElementById("PassiveBox").innerText = `Passive: ${PassiveBox.length > 0 ? PassiveBox.join(", ") : "None"}`;
   document.getElementById("AbilityBox").innerText = `Ability: ${AbilityBox.length > 0 ? AbilityBox.join(", ") : "None"}`;
   document.getElementById("WeaponBox").innerText = `Weapon: ${WeaponsBox.length > 0 ? WeaponsBox.join(", ") : "None"}`;
+  document.getElementById("ProficiencyBox").innerText = `Proficiencies: ${ProficiencyBox.length > 0 ? ProficiencyBox.join(", ") : "None"}`;
 
   // Update proficiencies
   calculateProficiencies(rolls);
 }
-
 
     function calculateProficiencies(rolls) {
   let profs = {};
