@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Character Reroll</title>
   <style>
-    #PassiveBox, #AbilityBox, #WeaponBox {
-  font-size: 18px; /* Adjust the font size as needed */
+#PassiveBox, #AbilityBox, #WeaponBox, #ItemsBox {
+  font-size: 22px; /* Adjust the font size as needed */
   margin: 10px 0; /* Add some margin for better spacing */
 }
     body {
@@ -42,6 +42,7 @@
   <div id="PassiveBox"></div>
   <div id="AbilityBox"></div>
   <div id="WeaponBox"></div>
+  <div id="ItemsBox"></div>
   
   <div id="proficiencies" style="margin-left: 30px; padding: 10px; border: 1px solid #ccc; width: 250px;">
     <strong>Proficiencies:</strong><br>
@@ -314,6 +315,69 @@
       69: ["Bone shatterer: (Weapon) [Attack] [Enemy] [10 FT]: Deal 3D4 + (PWR mod) damage [3 TP]   Cursed katana: (Weapon) [Attack] [Enemy] [10 FT]: Deal 1D4 + (AGI and ALL mod) magic damage [3 TP]"]
     };
 
+    const Items = {
+  10: ["Demonic charm [+4 Mana +3 WIT +1 INS]"],
+  11: ["Aquamancers bracelet [+5 Mana +2 ALL +1 INS]"],
+  12: ["Hunters armlet [+4 AGI +2 PWR]"],
+  13: ["Seafolk tiara [+3 END +2 WIT +1 Swiftness]"],
+  14: ["Angelic chestplate [+3 Health +3 END +2 PWR]"],
+  15: ["Underworld gemstone [+2 WIT +1 Swiftness +1 Spirit]"],
+  16: ["Cloudstriders charm [+3 Health +2 END +2 INS +1 WIT]"],
+  17: ["Dragonscale chestplate [+6 Health +4 END -2 Swiftness -2 Spirit]"],
+  18: ["Draconic cloak [+2 AGI +2 WIT +1 ALL]"],
+  19: ["Geomancers chestplate [+4 Mana +3 END +1 PWR +1 Mana regen]"],
+  20: ["Archmage’s amulet [+5 Mana +4 INS +1 WIT]"],
+  21: ["Holy locket [+2 INS +2 ALL +1 WIT]"],
+  22: ["Shamans garb [+3 Health +3 Mana +2 INS +2 ALL]"],
+  23: ["Rampagers helmet [+3 PWR +2 AGI +2 END]"],
+  24: ["Electromancers helmet [+5 Health +2 INS +1 Spirit]"],
+  25: ["Sunken armlet [+5 Mana +2 PWR +2 INS +1 Mana regen]"],
+  26: ["Demonic charm [+3 INS +3 WIT]"],
+  27: ["Warlords leg guards [+5 Health +3 PWR +2 END]"],
+  28: ["Dark omen of protection: [+5 Speed +4 END +2 PWR]"],
+  29: ["Waveskipper boots: [+4 Mana +3 AGI +2 WIT]"],
+  30: ["Wizards robe [+5 Mana +3 WIT +3 INS]"],
+  31: ["Shamans warpaint [+8 Mana +2 INS +2 WIT]"],
+  32: ["Dwarven war helm [+3 END +2 PWR]"],
+  33: ["Priests necklace [+4 INS +2 WIT +2 ALL]"],
+  34: ["Dancers armlet [+5 Speed +3 ALL +2 PWR]"],
+  35: ["Knights armour [+5 Health +2 PWR +2 END +2 INS]"],
+  36: ["Old gods garb: [+3 END +3 WIT +2 Swiftness +1 Spirit]"],
+  37: ["Dark iron armour [+2 END +2 Swiftness +2 Spirit]"],
+  38: ["Wild armlet [+3 AGI +2 ALL +1 PWR]"],
+  39: ["Berzerkers chestplate: [+5 Health +5 PWR]"],
+  40: ["Raindancers headband: [+3 INS +2 WIT +1 END]"],
+  41: ["Dark priests crystal eye: [+15 Mana +3 WIT]"],
+  42: ["Gladiators warpaint: [+8 health +5 Speed +3 PWR]"],
+  43: ["Band of Nasmanai: [+5 Speed +1 Swiftness +3 AGI +2 PWR]"],
+  44: ["Titan bracelet: [+8 Health +3 END +2 PWR]"],
+  45: ["Sacrificers gauntlet: [+2 Spirit +3 INS]"],
+  46: ["Venomancers hood: [+6 Health +3 END +3 INS]"],
+  47: ["Cursed armour: [-8 Swiftness -8 Spirit +5 PWR +5 AGI +5 ALL +10 Health]"],
+  48: ["Spiked handwraps: [+3 PWR +3 AGI +1 Spirit]"],
+  49: ["Graveborn amulet [+6 Mana +3 PWR +3 INS]"],
+  50: ["Wanderers ring: [+7 Mana +4 END +1 WIT]"],
+  51: ["Wise amulet: [+4 Health +4 Mana +1 Mana regen +1 Spirit]"],
+  52: ["Forbidden crown: [+3 INS +3 WIT +1 Spirit]"],
+  53: ["Buried gauntlet: [+4 END +3 PWR +2 Swiftness]"],
+  54: ["Tribal garb: [+3 INS +3 WIT +2 Spirit +1 Swiftness]"],
+  55: ["Priests robe: [+5 Mana +2 END +2 INS +1 WIT]"],
+  56: ["Kings cloak: [+7 Mana +5 Health +1 Swiftness]"],
+  57: ["Shamans bracelet: [+8 Mana +2 INS +1 WIT]"],
+  58: ["Boots of the wicked: [+5 Speed +3 PWR +1 AGI +1 Swiftness]"],
+  59: ["Great rogues regalia: [+4 AGI +3 ALL]"],
+  60: ["Armlet of the sacrificed [+3 INS +2 PWR]"],
+  61: ["Dark iron gauntlets: [+3 PWR +1 Swiftness]"],
+  62: ["Forest queens crown: [+3 AGI +2 ALL]"],
+  63: ["Dark lords headband: [+5 Speed +2 PWR +2 AGI +2 ALL]"],
+  64: ["Meteor necklace: [+10 Mana +3 INS +1 WIT]"],
+  65: ["Sages robe: [+5 Speed +2 INS +2 WIT]"],
+  66: ["The forbidden lords crystal eye: [+4 INS +4 ALL +2 AGI]"],
+  67: ["Forgotten handwraps: [+5 Speed +2 PWR +2 AGI +2 ALL]"],
+  68: ["Stormcallers hood: [+4 Mana +2 INS +2 AGI +1 Spirit]"],
+  69: ["Birthday suit: [+10 Health +5 PWR +5 AGI +5 ALL -7 Swiftness -7 Spirit]"]
+};
+
     const opposites = {
       PWR: "WIT",
       WIT: "PWR",
@@ -331,6 +395,7 @@ function MakeCharacter() {
   let AbilityBox = [];
   let PassiveBox = [];
   let ProficiencyBox = [];
+  let ItemsBox = []; // New array for ItemsBox
 
   // Pick two unique numbers
   let roll1 = getRandomInt(10, 69);
@@ -352,29 +417,29 @@ function MakeCharacter() {
       }
     });
 
-    // Add passives, abilities, and weapons based on rolls
+    // Add passives, abilities, weapons, and items based on rolls
     if (passives[roll]) {
       passives[roll].forEach(passive => {
-        // Split passive text at double spaces to separate multiple passives
         const splitPassives = passive.split("  ");
-        // Add each passive to the PassiveBox array
         PassiveBox.push(...splitPassives);
       });
     }
     if (abilities[roll]) {
       abilities[roll].forEach(ability => {
-        // Split ability text at double spaces to separate multiple abilities
         const splitAbilities = ability.split("  ");
-        // Add each ability to the AbilityBox array
         AbilityBox.push(...splitAbilities);
       });
     }
     if (weapons[roll]) {
       weapons[roll].forEach(weapon => {
-        // Split weapon text at double spaces to separate multiple weapons
         const splitWeapons = weapon.split("  ");
-        // Add each weapon to the WeaponsBox array
         WeaponsBox.push(...splitWeapons);
+      });
+    }
+    if (Items[roll]) {
+      Items[roll].forEach(item => {
+        const splitItems = item.split("  ");
+        ItemsBox.push(...splitItems);
       });
     }
   });
@@ -412,10 +477,11 @@ function MakeCharacter() {
   document.getElementById("all").innerText = `ALL: ${stats.ALL || 0}    Spirit: ${effects.Spirit}`;
   document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
 
-  // Update Passive, Ability, Weapon, and Proficiency Boxes
+  // Update Passive, Ability, Weapon, Items, and Proficiency Boxes
   document.getElementById("PassiveBox").innerHTML = `Passive: ${PassiveBox.length > 0 ? PassiveBox.join("<br>") : "None"}`;
   document.getElementById("AbilityBox").innerHTML = `Ability: ${AbilityBox.length > 0 ? AbilityBox.join("<br>") : "None"}`;
   document.getElementById("WeaponBox").innerHTML = `Weapon: ${WeaponsBox.length > 0 ? WeaponsBox.join("<br>") : "None"}`;
+  document.getElementById("ItemsBox").innerHTML = `Items: ${ItemsBox.length > 0 ? ItemsBox.join("<br>") : "None"}`;
   document.getElementById("proficiencies").innerHTML = `<strong>Proficiencies:</strong><br>${ProficiencyBox.length > 0 ? ProficiencyBox.join(", ") : "None"}`;
 }
 
