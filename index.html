@@ -465,15 +465,10 @@
    });
  
    // Apply final stat effects
-   effects.Health = baseEffects.Health + (stats.END || 0);
    effects.Health += stats.END || 0;
    effects.Mana += stats.INS || 0;
-   effects.ManaRegen = baseEffects.ManaRegen + (stats.WIT || 0);
    effects.ManaRegen += stats.WIT || 0;
    if (effects.ManaRegen < 1) effects.ManaRegen = 1;
-   effects.Swiftness = baseEffects.Swiftness + (stats.AGI || 0);
-   effects.Spirit = baseEffects.Spirit + (stats.ALL || 0);
-   effects.Advantage = baseEffects.Advantage + (stats.PWR || 0);
    effects.Swiftness += stats.AGI || 0;
    effects.Spirit += stats.ALL || 0;
    effects.Advantage += stats.PWR || 0;
