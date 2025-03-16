@@ -319,88 +319,86 @@
       ALL: "END"
     };
 
-    function MakeCharacter() {
-      // Reset stats, attributes, and boxes
-      let stats = { END: 0, INS: 0, WIT: 0, AGI: 0, ALL: 0, PWR: 0 };
-      let effects = { ...baseEffects };
-      let WeaponsBox = [];
-      let AbilityBox = [];
-      let PassiveBox = [];
-      let ProficiencyBox = [];
+function MakeCharacter() {
+  // Reset stats, attributes, and boxes
+  let stats = { END: 0, INS: 0, WIT: 0, AGI: 0, ALL: 0, PWR: 0 };
+  let effects = { ...baseEffects };
+  let WeaponsBox = [];
+  let AbilityBox = [];
+  let PassiveBox = [];
+  let ProficiencyBox = [];
 
-      // Pick two unique numbers
-      let roll1 = getRandomInt(10, 69);
-      let roll2;
-      do {
-        roll2 = getRandomInt(10, 69);
-      } while (roll2 === roll1);
+  // Pick two unique numbers
+  let roll1 = getRandomInt(10, 69);
+  let roll2;
+  do {
+    roll2 = getRandomInt(10, 69);
+  } while (roll2 === roll1);
 
-      const rolls = [roll1, roll2];
+  const rolls = [roll1, roll2];
 
-      // Apply bonuses from rolls
-      rolls.forEach(roll => {
-        const bonuses = rollEffects[roll] || {}; // Ensure it doesn't crash if undefined
-        Object.keys(bonuses).forEach(key => {
-          if (stats.hasOwnProperty(key)) {
-            stats[key] += bonuses[key];
-          } else if (effects.hasOwnProperty(key)) {
-            effects[key] += bonuses[key];
-          }
-        });
-
-        // Add passives, abilities, and weapons based on rolls
-        if (passives[roll]) {
-          PassiveBox.push(...passives[roll]);
-        }
-        if (abilities[roll]) {
-          AbilityBox.push(...abilities[roll]);
-        }
-        if (weapons[roll]) {
-          WeaponsBox.push(...weapons[roll]);
-        }
-      });
-
-      // Apply proficiency effects
-      rolls.forEach(roll => {
-        const proficiencyBonuses = proficiencyEffects[roll] || {};
-        Object.keys(proficiencyBonuses).forEach(key => {
-          if (key === "Proficiencies") {
-            ProficiencyBox.push(...proficiencyBonuses[key]); // Add proficiencies
-          }
-        });
-      });
-
-      // Ensure opposite stats are applied
-      for (let stat in stats) {
-        const opposite = opposites[stat];
-        if (opposite && stats[stat] > 0) {
-          stats[opposite] -= stats[stat];
-        }
+  // Apply bonuses from rolls
+  rolls.forEach(roll => {
+    const bonuses = rollEffects[roll] || {}; // Ensure it doesn't crash if undefined
+    Object.keys(bonuses).forEach(key => {
+      if (stats.hasOwnProperty(key)) {
+        stats[key] += bonuses[key];
+      } else if (effects.hasOwnProperty(key)) {
+        effects[key] += bonuses[key];
       }
+    });
 
-      // Apply final stat effects
-      effects.Health = baseEffects.Health + (stats.END || 0);
-      effects.Mana += stats.INS || 0;
-      effects.ManaRegen = baseEffects.ManaRegen + (stats.WIT || 0);
-      if (effects.ManaRegen < 1) effects.ManaRegen = 1;
-      effects.Swiftness = baseEffects.Swiftness + (stats.AGI || 0);
-      effects.Spirit = baseEffects.Spirit + (stats.ALL || 0);
-      effects.Advantage = baseEffects.Advantage + (stats.PWR || 0);
-
-      // Update UI
-      document.getElementById("end").innerText = `END: ${stats.END || 0}    Health: ${effects.Health}`;
-      document.getElementById("ins").innerText = `INS: ${stats.INS || 0}    Mana: ${effects.Mana}`;
-      document.getElementById("wit").innerText = `WIT: ${stats.WIT || 0}    Mana Regen: ${effects.ManaRegen}`;
-      document.getElementById("agi").innerText = `AGI: ${stats.AGI || 0}    Swiftness: ${effects.Swiftness}`;
-      document.getElementById("all").innerText = `ALL: ${stats.ALL || 0}    Spirit: ${effects.Spirit}`;
-      document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
-
-      // Update Passive, Ability, Weapon, and Proficiency Boxes
-      document.getElementById("PassiveBox").innerText = `Passive: ${PassiveBox.length > 0 ? PassiveBox.join(", ") : "None"}`;
-      document.getElementById("AbilityBox").innerText = `Ability: ${AbilityBox.length > 0 ? AbilityBox.join(", ") : "None"}`;
-      document.getElementById("WeaponBox").innerText = `Weapon: ${WeaponsBox.length > 0 ? WeaponsBox.join(", ") : "None"}`;
-      document.getElementById("proficiencies").innerHTML = `<strong>Proficiencies:</strong><br>${ProficiencyBox.length > 0 ? ProficiencyBox.join(", ") : "None"}`;
+    // Add passives, abilities, and weapons based on rolls
+    if (passives[roll]) {
+      PassiveBox.push(...passives[roll]);
     }
+    if (abilities[roll]) {
+      AbilityBox.push(...abilities[roll]);
+    }
+    if (weapons[roll]) {
+      WeaponsBox.push(...weapons[roll]);
+    }
+  });
+
+  // Apply proficiency effects
+  rolls.forEach(roll => {
+    const proficiencyBonuses = proficiencyEffects[roll] || {};
+    for (let key in proficiencyBonuses) {
+      ProficiencyBox.push(`+${proficiencyBonuses[key]} ${key}`);
+    }
+  });
+
+  // Ensure opposite stats are applied
+  for (let stat in stats) {
+    const opposite = opposites[stat];
+    if (opposite && stats[stat] > 0) {
+      stats[opposite] -= stats[stat];
+    }
+  }
+
+  // Apply final stat effects
+  effects.Health = baseEffects.Health + (stats.END || 0);
+  effects.Mana += stats.INS || 0;
+  effects.ManaRegen = baseEffects.ManaRegen + (stats.WIT || 0);
+  if (effects.ManaRegen < 1) effects.ManaRegen = 1;
+  effects.Swiftness = baseEffects.Swiftness + (stats.AGI || 0);
+  effects.Spirit = baseEffects.Spirit + (stats.ALL || 0);
+  effects.Advantage = baseEffects.Advantage + (stats.PWR || 0);
+
+  // Update UI
+  document.getElementById("end").innerText = `END: ${stats.END || 0}    Health: ${effects.Health}`;
+  document.getElementById("ins").innerText = `INS: ${stats.INS || 0}    Mana: ${effects.Mana}`;
+  document.getElementById("wit").innerText = `WIT: ${stats.WIT || 0}    Mana Regen: ${effects.ManaRegen}`;
+  document.getElementById("agi").innerText = `AGI: ${stats.AGI || 0}    Swiftness: ${effects.Swiftness}`;
+  document.getElementById("all").innerText = `ALL: ${stats.ALL || 0}    Spirit: ${effects.Spirit}`;
+  document.getElementById("pwr").innerText = `PWR: ${stats.PWR || 0}    Advantage: ${effects.Advantage}`;
+
+  // Update Passive, Ability, Weapon, and Proficiency Boxes
+  document.getElementById("PassiveBox").innerText = `Passive: ${PassiveBox.length > 0 ? PassiveBox.join(", ") : "None"}`;
+  document.getElementById("AbilityBox").innerText = `Ability: ${AbilityBox.length > 0 ? AbilityBox.join(", ") : "None"}`;
+  document.getElementById("WeaponBox").innerText = `Weapon: ${WeaponsBox.length > 0 ? WeaponsBox.join(", ") : "None"}`;
+  document.getElementById("proficiencies").innerHTML = `<strong>Proficiencies:</strong><br>${ProficiencyBox.length > 0 ? ProficiencyBox.join(", ") : "None"}`;
+}
 
     function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
