@@ -378,14 +378,24 @@
   69: ["Birthday suit: [+10 Health +5 PWR +5 AGI +5 ALL -7 Swiftness -7 Spirit]"]
 };
 
-    const opposites = {
-      PWR: "WIT",
-      WIT: "PWR",
-      AGI: "INS",
-      INS: "AGI",
-      END: "ALL",
-      ALL: "END"
-    };
+function updateStat(stats, stat, value) {
+  const opposites = {
+    PWR: "WIT",
+    WIT: "PWR",
+    AGI: "INS",
+    INS: "AGI",
+    END: "ALL",
+    ALL: "END"
+  };
+
+  // Update the stat
+  stats[stat] += value;
+
+  // Update the opposite stat
+  if (opposites[stat]) {
+    stats[opposites[stat]] -= value;
+  }
+}
 
 function MakeCharacter() {
   // Reset stats, attributes, and boxes
@@ -395,7 +405,7 @@ function MakeCharacter() {
   let AbilityBox = [];
   let PassiveBox = [];
   let ProficiencyBox = [];
-  let ItemsBox = []; // New array for ItemsBox
+  let ItemsBox = [];
 
   // Pick two unique numbers
   let roll1 = getRandomInt(10, 69);
@@ -411,8 +421,10 @@ function MakeCharacter() {
     const bonuses = rollEffects[roll] || {}; // Ensure it doesn't crash if undefined
     Object.keys(bonuses).forEach(key => {
       if (stats.hasOwnProperty(key)) {
-        stats[key] += bonuses[key];
+        // Update the stat and its opposite
+        updateStat(stats, key, bonuses[key]);
       } else if (effects.hasOwnProperty(key)) {
+        // Update the attribute
         effects[key] += bonuses[key];
       }
     });
@@ -451,14 +463,6 @@ function MakeCharacter() {
       ProficiencyBox.push(`+${proficiencyBonuses[key]} ${key}`);
     }
   });
-
-  // Ensure opposite stats are applied
-  for (let stat in stats) {
-    const opposite = opposites[stat];
-    if (opposite && stats[stat] > 0) {
-      stats[opposite] -= stats[stat];
-    }
-  }
 
   // Apply final stat effects
   effects.Health = baseEffects.Health + (stats.END || 0);
